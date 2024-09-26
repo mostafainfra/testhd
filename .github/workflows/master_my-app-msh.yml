@@ -1,38 +1,38 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - my-app-msh
-
+name: Build and deploy ASP.Net Core app to Azure Web App - git-app
+ 
 on:
   push:
     branches:
       - master
   workflow_dispatch:
-
+ 
 jobs:
   build:
     runs-on: windows-latest
-
+ 
     steps:
       - uses: actions/checkout@v4
-
+ 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-
+ 
+      - name: Afficher le contenu du répertoire
+        run: dir
+ 
       - name: Build with dotnet
         run: dotnet build --configuration Release
-
+ 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
+        run: dotnet publish -c Release -o ./myapp
+ 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
+          path: ./myapp
+ 
   deploy:
     runs-on: windows-latest
     needs: build
@@ -40,26 +40,24 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-
+      id-token: write
+ 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E50D342CA95445438A48B6B6C3BA25B6 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2B681B6ECCF44102B72612BB781AA1ED }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C9D3690AF7114BB7A5D4EFA6282B008B }}
-
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_954A9A3E429F48E897BBB3E5ACBBF25C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_90A7A9717CC54257943DBA57204F5897 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B15F70A31A6B4B7C8A1B45D430AC1CF9 }}
+ 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'my-app-msh'
+          app-name: 'git-app'
           slot-name: 'Production'
-          package: .
-          
+          package: ./
