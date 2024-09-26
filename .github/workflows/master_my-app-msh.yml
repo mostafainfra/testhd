@@ -1,63 +1,62 @@
-name: Build and deploy ASP.Net Core app to Azure Web App - git-app
- 
+name: Build and deploy ASP.Net Core app to Azure Web App - testmmmm(dev)
+
 on:
   push:
     branches:
-      - master
+      - dev
   workflow_dispatch:
- 
+
 jobs:
   build:
     runs-on: windows-latest
- 
+
     steps:
       - uses: actions/checkout@v4
- 
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
- 
-      - name: Afficher le contenu du répertoire
-        run: dir
- 
+
       - name: Build with dotnet
         run: dotnet build --configuration Release
- 
+
       - name: dotnet publish
-        run: dotnet publish -c Release -o ./myapp
- 
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ./myapp
- 
+          path: ${{env.DOTNET_ROOT}}/myapp
+
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
-      name: 'Production'
+      name: 'dev'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write
- 
+      id-token: write #This is required for requesting the JWT
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_954A9A3E429F48E897BBB3E5ACBBF25C }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_90A7A9717CC54257943DBA57204F5897 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B15F70A31A6B4B7C8A1B45D430AC1CF9 }}
- 
+          client-id: ${{ secrets.__clientidsecretname__ }}
+          tenant-id: ${{ secrets.__tenantidsecretname__ }}
+          subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'git-app'
-          slot-name: 'Production'
-          package: ./
+          app-name: 'testmmmm(dev)'
+          slot-name: 'dev'
+          package: .
+          
